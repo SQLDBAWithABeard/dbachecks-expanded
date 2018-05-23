@@ -74,24 +74,22 @@ GO
 
 -- Create a Detail Stage table
 
-CREATE TRIGGER [dbachecks].[Load_Prod_Summary] 
-   ON   [dbachecks].[Prod_dbachecks_summary_stage]
-   AFTER INSERT
-AS 
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
- 
-    INSERT INTO [dbachecks].[Prod_dbachecks_summary] 
-	([TagFilter], [ExcludeTagFilter], [TestNameFilter], [TotalCount], [PassedCount], [FailedCount], [SkippedCount], [PendingCount], [InconclusiveCount], [Time], [TestResult])
-	SELECT [TagFilter], [ExcludeTagFilter], [TestNameFilter], [TotalCount], [PassedCount], [FailedCount], [SkippedCount], [PendingCount], [InconclusiveCount], [Time], [TestResult] FROM [dbachecks].[Prod_dbachecks_summary_stage]
- 
-END
+CREATE TABLE [dbachecks].[Prod_dbachecks_detail_stage](
+[ErrorRecord] [nvarchar](max) NULL,
+[ParameterizedSuiteName] [nvarchar](max) NULL,
+[Describe] [nvarchar](max) NULL,
+[Parameters] [nvarchar](max) NULL,
+[Passed] [bit] NULL,
+[Show] [nvarchar](max) NULL,
+[FailureMessage] [nvarchar](max) NULL,
+[Time] [bigint] NULL,
+[Name] [nvarchar](max) NULL,
+[Result] [nvarchar](max) NULL,
+[Context] [nvarchar](max) NULL,
+[StackTrace] [nvarchar](max) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
- 
-ALTER TABLE [dbachecks].[Prod_dbachecks_summary_stage] ENABLE TRIGGER [Load_Prod_Summary]
-GO
+
 
 -- Creatae a Detail table
 
