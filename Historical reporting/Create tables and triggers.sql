@@ -14,6 +14,7 @@ CREATE TABLE [dbachecks].[Prod_dbachecks_summary_stage](
 	[TagFilter] [nvarchar](max) NULL,
 	[ExcludeTagFilter] [nvarchar](max) NULL,
 	[TestNameFilter] [nvarchar](max) NULL,
+	[ScriptBlockFilter] [nvarchar](max) NULL,
 	[TotalCount] [int] NULL,
 	[PassedCount] [int] NULL,
 	[FailedCount] [int] NULL,
@@ -32,6 +33,7 @@ CREATE TABLE [dbachecks].[Prod_dbachecks_summary](
 	[TestDate] [date] NOT NULL,
 	[TagFilter] [nvarchar](max) NULL,
 	[ExcludeTagFilter] [nvarchar](max) NULL,
+	[ScriptBlockFilter] [nvarchar](max) NULL,
 	[TestNameFilter] [nvarchar](max) NULL,
 	[TotalCount] [int] NULL,
 	[PassedCount] [int] NULL,
@@ -41,7 +43,7 @@ CREATE TABLE [dbachecks].[Prod_dbachecks_summary](
 	[InconclusiveCount] [int] NULL,
 	[Time] [bigint] NULL,
 	[TestResult] [nvarchar](max) NULL,
- CONSTRAINT [PK_Prod_dbachecks_summary] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Prod_dbachecks_summary] PRIMARY KEY CLUSTERED
 (
 	[SummaryID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -53,22 +55,22 @@ GO
 
 -- Create a trigger
 
-CREATE TRIGGER [dbachecks].[Load_Prod_Summary] 
+CREATE TRIGGER [dbachecks].[Load_Prod_Summary]
    ON   [dbachecks].[Prod_dbachecks_summary_stage]
    AFTER INSERT
-AS 
+AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
- 
-    INSERT INTO [dbachecks].[Prod_dbachecks_summary] 
-	([TagFilter], [ExcludeTagFilter], [TestNameFilter], [TotalCount], [PassedCount], [FailedCount], [SkippedCount], [PendingCount], [InconclusiveCount], [Time], [TestResult])
-	SELECT [TagFilter], [ExcludeTagFilter], [TestNameFilter], [TotalCount], [PassedCount], [FailedCount], [SkippedCount], [PendingCount], [InconclusiveCount], [Time], [TestResult] FROM [dbachecks].[Prod_dbachecks_summary_stage]
- 
+
+    INSERT INTO [dbachecks].[Prod_dbachecks_summary]
+	([TagFilter], [ExcludeTagFilter], [ScriptBlockFilter], [TestNameFilter], [TotalCount], [PassedCount], [FailedCount], [SkippedCount], [PendingCount], [InconclusiveCount], [Time], [TestResult])
+	SELECT [TagFilter], [ExcludeTagFilter], [ScriptBlockFilter], [TestNameFilter], [TotalCount], [PassedCount], [FailedCount], [SkippedCount], [PendingCount], [InconclusiveCount], [Time], [TestResult] FROM [dbachecks].[Prod_dbachecks_summary_stage]
+
 END
 GO
- 
+
 ALTER TABLE [dbachecks].[Prod_dbachecks_summary_stage] ENABLE TRIGGER [Load_Prod_Summary]
 GO
 
@@ -108,7 +110,7 @@ CREATE TABLE [dbachecks].[Prod_dbachecks_detail](
 	[Result] [nvarchar](max) NULL,
 	[Context] [nvarchar](max) NULL,
 	[StackTrace] [nvarchar](max) NULL,
- CONSTRAINT [PK_Prod_dbachecks_detail] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Prod_dbachecks_detail] PRIMARY KEY CLUSTERED
 (
 	[DetailID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -124,18 +126,18 @@ GO
 
 -- Create a trigger
 
-CREATE TRIGGER [dbachecks].[Load_Prod_Detail] 
+CREATE TRIGGER [dbachecks].[Load_Prod_Detail]
    ON   [dbachecks].[Prod_dbachecks_detail_stage]
    AFTER INSERT
-AS 
+AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
-    INSERT INTO [dbachecks].[Prod_dbachecks_detail] 
+    INSERT INTO [dbachecks].[Prod_dbachecks_detail]
 ([SummaryID],[ErrorRecord], [ParameterizedSuiteName], [Describe], [Parameters], [Passed], [Show], [FailureMessage], [Time], [Name], [Result], [Context], [StackTrace])
-	SELECT 
+	SELECT
 	(SELECT MAX(SummaryID) From [dbachecks].[Prod_dbachecks_summary]),[ErrorRecord], [ParameterizedSuiteName], [Describe], [Parameters], [Passed], [Show], [FailureMessage], [Time], [Name], [Result], [Context], [StackTrace]
 	FROM [dbachecks].[Prod_dbachecks_detail_stage]
 
